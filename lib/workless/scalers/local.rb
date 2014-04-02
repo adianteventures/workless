@@ -14,31 +14,26 @@ module Delayed
         end
         
         
+        # must set current workers = workers_needed
         def self.up
-          puts ">>>>>>>>>> self.up! jobs:#{jobs.count} | workers:#{self.workers} | needed:#{self.workers_needed} | min:#{self.min_workers} | max:#{self.max_workers} | ratio:#{self.workers_ratio}"
-          if self.workers_needed > self.min_workers and self.workers < self.workers_needed
-            (self.workers+1).upto(self.workers_needed).each do |worker_id|
-              Rush::Box.new[Rails.root].bash("#{executable_prefix}/delayed_job start -i workless.#{worker_id}", :background => true)
-              sleep 1
-            end
+          # puts ">>>>>>>>>> self.up! jobs:#{self.jobs.count} | workers:#{self.workers} | needed:#{self.workers_needed} | min:#{self.min_workers} | max:#{self.max_workers} | ratio:#{self.workers_ratio}"
+          (self.scaler_workers+1).upto(self.workers_needed).each do |worker_id|
+            Rush::Box.new[Rails.root].bash("#{executable_prefix}/delayed_job start -i workless.#{worker_id}", :background => true)
+            sleep 1
           end
-          true
         end
         
+        # must set current workers = min_workers
         def self.down
-          puts ">>>>>>>>>> self.down! jobs:#{jobs.count} | workers:#{self.workers} | needed:#{self.workers_needed} | min:#{self.min_workers} | max:#{self.max_workers} | ratio:#{self.workers_ratio}"
-          if (jobs.count == 0)
-            if (self.workers > 0)
-              # add 5 if pending workers with higher index
-              (self.workers+5).downto(1).each do |worker_id|
-                Rush::Box.new[Rails.root].bash("#{executable_prefix}/delayed_job stop -i workless.#{worker_id}", :background => true)
-              end
-            end
+          # puts ">>>>>>>>>> self.down! jobs:#{self.jobs.count} | workers:#{self.workers} | needed:#{self.workers_needed} | min:#{self.min_workers} | max:#{self.max_workers} | ratio:#{self.workers_ratio}"
+          # add 5 if pending workers with higher index
+          (self.scaler_workers+5).downto(self.min_workers+1).each do |worker_id|
+            Rush::Box.new[Rails.root].bash("#{executable_prefix}/delayed_job stop -i workless.#{worker_id}", :background => true)
           end
-          true
         end
         
-        def self.workers
+        # returns how many workers are currently running
+        def self.scaler_workers
           Rush::Box.new.processes.filter(:cmdline => /delayed_job start -i workless|delayed_job.workless/).size
         end
         

@@ -3,7 +3,11 @@ module Delayed
     module Scaler
 
       class Null < Base
-      
+        
+        def self.scaler_workers
+          return 0
+        end
+        
         def self.up
         end
 

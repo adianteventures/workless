@@ -3,7 +3,16 @@ require 'delayed_job'
 module Delayed
   module Workless
     module Scaler
-  
+      
+      # configure in initializer like this
+      #   Delayed::Job.scaler = :heroku_cedar
+      #   Delayed::Workless::Scaler::Base.min_workers = 0
+      #   Delayed::Workless::Scaler::Base.max_workers = 2
+      #   Delayed::Workless::Scaler::Base.workers_ratio = 50
+      #   Delayed::Workless::Scaler::Base.worker_count_sync_max_interval_seconds = 1.minute
+      #   Delayed::Workless::Scaler::Base.job_run_at_max_interval_seconds = 2.minutes
+      
+      
       class Base
         
         cattr_accessor :min_workers, :max_workers, :workers_ratio, :worker_count_sync_max_interval_seconds, :job_run_at_max_interval_seconds

@@ -4,6 +4,12 @@
 
 # Workless
 
+Forked from https://github.com/lostboy/workless
+
+This fork's targets:
+* Allow Local scaler to execute multiple workers
+* Pending job count is based on how many jobs need to be done now-or-in-the-near-future (rather than jobs that have not failed, as in original workless version). If no jobs need to be done now-or-in-the-near-future, workers are stopped. IMPORTANT! If this happens, it is application's responsibility to start workers later (a cron task for example)
+
 This is an addon for delayed_job (> 2.0.0) http://github.com/collectiveidea/delayed_job
 It is designed to be used when you're using Heroku as a host and have the need to do background work with delayed job but you don't want to leave the workers running all the time as it costs money.
 
